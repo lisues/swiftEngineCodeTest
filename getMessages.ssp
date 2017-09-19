@@ -1,0 +1,38 @@
+<%
+import Foundation
+import MongoKitten
+import SwiftyJSON
+
+//first we connect to the database
+let myDatabase = try MongoKitten.Database("mongodb://lisuejocelyns:swiftTest6!@ds139904.mlab.com:39904/mytest")
+                    
+let myCollection = myDatabase["message"]
+
+/*
+If a Topic is Specified, then Show All Messages in that Topic
+*/
+
+Request.addHandler(forMethod: "GET", withRoute: "/:resource/:id")
+{ 
+    (routeParams:RouteParams) in
+        Response.write("<h2>Mesage Topic: \(routeParams["id"]!)<h2>")
+
+        var topic = routeParams["id"] as? String
+        for document in try! myCollection.find("topic" == topic) {
+            Response.write("<p>---------------------------------</p>")
+            Response.write("Message Text: \(document["message"] as! String)<br>")
+             Response.write(document["email"] as! String)
+        }
+}
+
+Request.addHandler(forMethod: "GET", withRoute: "*")
+{
+   for document in try! myCollection.find() {
+      Response.write("<p>---------------------------------</p>")
+      Response.write("Topic: \(document["topic"] as! String)<br>")
+      Response.write("Message Text: \(document["message"] as! String)<br>")
+      Response.write(document["email"] as! String)
+    }
+}
+
+%>

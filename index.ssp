@@ -1,0 +1,69 @@
+<!-- #INCLUDE FILE="/inc_imports.ssp" -->
+<!-- #INCLUDE FILE="/inc_functions.ssp" -->
+<!-- #INCLUDE FILE="/inc_header.ssp" -->
+            
+<b>Testing Swift Code:</b><br>
+
+<div id="response">
+    <pre></pre>
+</div>
+<div>
+<br><br><br><br>
+<h2 align="center">Welcome to messaging board</h2><br><br>
+</div>
+<div id="main_content" align="center">
+<form id="my-form">
+    <input type="text" id="topic" name="topic" placeholder="Topic" />
+    <input type="text" id="message" name="message" placeholder="Message Text" />
+    <input type="text" id="email" name="email" placeholder="Email" /><br><br>
+    <button type="submit">Submit</button>
+</form>
+</div>
+<div>
+<p id="demo" align="center"></p>
+</div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+
+    (function($){
+        function processForm( e ){
+            var o = {};
+            var myTopic="new"
+            var obj = $('#my-form').serializeArray();
+            $.map(obj, function(n, i){
+                o[n['name']] = n['value'];
+            });
+            
+            var myJSON = JSON.stringify(o);
+           
+            $.ajax({
+                url: 'messages.ssp',
+                dataType: 'json',
+                type: 'post',
+                contentType: 'application/json',
+                data: myJSON,
+                success: function( data, textStatus, jQxhr ){
+                    JSON.parse(myJSON, (key, value) => {
+                    if (key == "topic") {
+                        myTopic = value
+                    }
+                    });
+                    document.getElementById("main_content").innerHTML = "<h2>Message Added to Topic:"+ myTopic+"</h2><p>This is a notification message</p>";
+                    document.getElementById("demo").innerHTML = myJSON;
+                },
+                error: function( jqXhr, textStatus, errorThrown ){
+                    $('#response pre').html( "error -----" );
+                }
+            });
+
+            e.preventDefault();
+        }
+
+        $('#my-form').submit( processForm );
+    })(jQuery);
+</script>    
+
+
+<br><br><br>
+
+<!-- #INCLUDE FILE="/inc_footer.ssp" -->

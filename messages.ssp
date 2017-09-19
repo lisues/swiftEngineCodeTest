@@ -1,0 +1,38 @@
+<%
+import Foundation
+import MongoKitten
+import SwiftyJSON
+
+//first we connect to the database
+let myDatabase = try MongoKitten.Database("mongodb://lisuejocelyns:swiftTest6!@ds139904.mlab.com:39904/mytest")
+//next we choose the collection we want to use
+let myCollection = myDatabase["message"]
+
+
+Request.addHandler(forMethod: "POST", withRoute: "*")
+{
+   (routeParams:RouteParams) in
+    let jsonString = Request.server["RAW_POST_DATA"]! 
+
+    var document = try! Document(extendedJSON: jsonString)! 
+    document["_id"] = UUID().uuidString 
+    try! myCollection.insert(document) 
+  
+  //for real world:
+  //sending email should be only done when insert status is a success or we can sending error message 
+  // adminEmail: should be email from admin 
+    var adminEmail = "lisuejocelynshe@yahoo.com"
+    var myTopic = "No Topic"   
+    if let myTopic2 = document["topic"] as? String {
+         myTopic = myTopic2
+    }
+    if let getEmail =  document["topic"] as? String {
+        var headers = "Reply-To: lisuejshe@gmail.com"
+        Mail.send(to: "\(getEmail)", from: "\(adminEmail)", subject: "\(myTopic)", message: "This is a notification message", additionalHeaders: headers)
+        Mail.send(to: "\(adminEmail)", from: "\(adminEmail)", subject: "\(myTopic)", message: "This is a notification message", additionalHeaders: headers) 
+    }
+    
+    Response.json(document.dictionaryRepresentation as! [String:String])
+    
+}
+%>
